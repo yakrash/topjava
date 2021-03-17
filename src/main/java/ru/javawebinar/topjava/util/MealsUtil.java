@@ -1,6 +1,6 @@
 package ru.javawebinar.topjava.util;
 
-import ru.javawebinar.topjava.DAO.MealInMemory;
+import ru.javawebinar.topjava.DAO.MealByDefault;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.MealTo;
 
@@ -12,10 +12,9 @@ import java.util.stream.Collectors;
 
 public class MealsUtil {
     public static void main(String[] args) {
-        MealInMemory mealInMemory = new MealInMemory();
-        mealInMemory.addByDefault();
+        MealByDefault mealByDefault = new MealByDefault();
 
-        List<MealTo> mealsTo = filteredByStreams(mealInMemory.getMeal(), LocalTime.of(7, 0),
+        List<MealTo> mealsTo = filteredByStreams(mealByDefault.getAll(), LocalTime.of(7, 0),
                 LocalTime.of(12, 0), 2000);
         mealsTo.forEach(System.out::println);
     }
@@ -33,6 +32,6 @@ public class MealsUtil {
     }
 
     private static MealTo createTo(Meal meal, boolean excess) {
-        return new MealTo(meal.getDateTime(), meal.getDescription(), meal.getCalories(), excess);
+        return new MealTo(meal.getId(), meal.getDateTime(), meal.getDescription(), meal.getCalories(), excess);
     }
 }

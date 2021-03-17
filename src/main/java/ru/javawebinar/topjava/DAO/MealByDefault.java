@@ -7,10 +7,10 @@ import java.time.Month;
 import java.util.Arrays;
 import java.util.List;
 
-public class MealInMemory {
-    private List<Meal> meals;
+public class MealByDefault {
+    private final List<Meal> meals;
 
-    public void addByDefault() {
+    public MealByDefault() {
         meals = Arrays.asList(
                 new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500),
                 new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000),
@@ -22,8 +22,7 @@ public class MealInMemory {
         );
     }
 
-    public List<Meal> getMeal() {
+    public List<Meal> getAll() {
         return meals;
     }
-
 }
