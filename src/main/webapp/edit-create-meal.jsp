@@ -3,10 +3,10 @@
 
 <html>
 <head>
-    <title>${param.text}meal</title>
+    <title>${param.text} meal</title>
 </head>
 <body>
-<h2><%= request.getParameter("text") %> meal</h2>
+<h2>${param.text} meal</h2>
 <h3><a href="meals">Back</a></h3>
 <form method="post" action="meals?id=${meal.id}">
     <p>

@@ -13,20 +13,21 @@ public class MealInMemoryDAO implements MealDAO {
     private final Map<Long, Meal> mealMap = new ConcurrentHashMap<>();
 
     public MealInMemoryDAO() {
-        List<Meal> mealList = new MealTestData().getAll();
+        List<Meal> mealList = MealTestData.getAll();
         for (Meal meal : mealList) {
             add(meal);
         }
     }
 
     @Override
-    public synchronized Meal add(Meal meal) {
-        meal.setId(id.incrementAndGet());
-        return mealMap.put(id.longValue(), meal);
+    public Meal add(Meal meal) {
+        long i = id.incrementAndGet();
+        meal.setId(i);
+        return mealMap.put(i, meal);
     }
 
     @Override
-    public Meal getById(Long index) {
+    public Meal getById(long index) {
         return mealMap.get(index);
     }
 
@@ -36,12 +37,12 @@ public class MealInMemoryDAO implements MealDAO {
     }
 
     @Override
-    public void update(Long id, Meal meal) {
+    public void update(long id, Meal meal) {
         mealMap.put(id, meal);
     }
 
     @Override
-    public void delete(Long index) {
+    public void delete(long index) {
         mealMap.remove(index);
     }
 }

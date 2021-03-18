@@ -40,13 +40,13 @@ public class MealServlet extends HttpServlet {
 
         switch (action) {
             case "delete":
-                mealDAO.delete(Long.valueOf(id));
+                mealDAO.delete(Long.parseLong(id));
                 response.sendRedirect("meals");
 
                 log.debug("delete id: " + id);
                 break;
             case "update":
-                Long index = Long.valueOf(id);
+                long index = Long.parseLong(id);
                 request.setAttribute("meal", mealDAO.getById(index));
                 request.getRequestDispatcher("/edit-create-meal.jsp?text=Update").forward(request, response);
 

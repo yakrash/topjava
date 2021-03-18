@@ -18,7 +18,7 @@ public class MealTestData {
             new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410)
     );
 
-    public List<Meal> getAll() {
+    public static List<Meal> getAll() {
         return MEALS;
     }
 }
