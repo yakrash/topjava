@@ -3,7 +3,7 @@
 
 <html>
 <head>
-    <title><%= request.getParameter("text") %> meal</title>
+    <title>${param.text}meal</title>
 </head>
 <body>
 <h2><%= request.getParameter("text") %> meal</h2>

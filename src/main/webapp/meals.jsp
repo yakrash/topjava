@@ -4,31 +4,8 @@
 
 <html>
 <head>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css" type="text/css"/>
     <title>Meals</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            color: #686461;
-        }
-
-        th {
-            border-bottom: 3px solid #B9B29F;
-            padding: 10px;
-            text-align: left;
-        }
-
-        td {
-            padding: 10px;
-        }
-
-        tr:nth-child(odd) {
-            background: white;
-        }
-
-        tr:nth-child(even) {
-            background: #E8E6D1;
-        }
-    </style>
 </head>
 <body>
 <h3><a href="index.html">Main menu</a></h3>

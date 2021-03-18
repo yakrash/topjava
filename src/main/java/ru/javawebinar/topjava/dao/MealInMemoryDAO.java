@@ -1,4 +1,4 @@
-package ru.javawebinar.topjava.DAO;
+package ru.javawebinar.topjava.dao;
 
 import ru.javawebinar.topjava.model.Meal;
 
@@ -13,14 +13,14 @@ public class MealInMemoryDAO implements MealDAO {
     private final Map<Long, Meal> mealMap = new ConcurrentHashMap<>();
 
     public MealInMemoryDAO() {
-        List<Meal> mealList = new MealByDefault().getAll();
+        List<Meal> mealList = new MealTestData().getAll();
         for (Meal meal : mealList) {
             add(meal);
         }
     }
 
     @Override
-    public Meal add(Meal meal) {
+    public synchronized Meal add(Meal meal) {
         meal.setId(id.incrementAndGet());
         return mealMap.put(id.longValue(), meal);
     }
@@ -36,8 +36,8 @@ public class MealInMemoryDAO implements MealDAO {
     }
 
     @Override
-    public void update(Meal meal) {
-        mealMap.put(meal.getId(), meal);
+    public void update(Long id, Meal meal) {
+        mealMap.put(id, meal);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package ru.javawebinar.topjava.DAO;
+package ru.javawebinar.topjava.dao;
 
 import ru.javawebinar.topjava.model.Meal;
 
@@ -11,7 +11,7 @@ public interface MealDAO {
 
     List<Meal> getAll();
 
-    void update(Meal meal);
+    void update(Long id, Meal meal);
 
     void delete(Long index);
 }

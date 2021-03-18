@@ -1,8 +1,8 @@
 package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
-import ru.javawebinar.topjava.DAO.MealDAO;
-import ru.javawebinar.topjava.DAO.MealInMemoryDAO;
+import ru.javawebinar.topjava.dao.MealDAO;
+import ru.javawebinar.topjava.dao.MealInMemoryDAO;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
@@ -78,8 +78,8 @@ public class MealServlet extends HttpServlet {
 
             log.debug("add id: " + meal.getId());
         } else {
-            meal.setId(Long.valueOf(id));
-            mealDAO.update(meal);
+            meal.setId(Long.parseLong(id));
+            mealDAO.update(meal.getId(), meal);
 
             log.debug("updated id: " + id);
         }

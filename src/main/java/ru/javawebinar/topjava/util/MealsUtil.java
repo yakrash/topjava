@@ -1,6 +1,7 @@
 package ru.javawebinar.topjava.util;
 
-import ru.javawebinar.topjava.DAO.MealByDefault;
+import ru.javawebinar.topjava.dao.MealDAO;
+import ru.javawebinar.topjava.dao.MealInMemoryDAO;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.MealTo;
 
@@ -12,9 +13,9 @@ import java.util.stream.Collectors;
 
 public class MealsUtil {
     public static void main(String[] args) {
-        MealByDefault mealByDefault = new MealByDefault();
+        MealDAO mealDAO = new MealInMemoryDAO();
 
-        List<MealTo> mealsTo = filteredByStreams(mealByDefault.getAll(), LocalTime.of(7, 0),
+        List<MealTo> mealsTo = filteredByStreams(mealDAO.getAll(), LocalTime.of(7, 0),
                 LocalTime.of(12, 0), 2000);
         mealsTo.forEach(System.out::println);
     }
