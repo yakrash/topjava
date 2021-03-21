@@ -23,6 +23,19 @@
     <h2>Meals</h2>
     <a href="meals?action=create">Add Meal</a>
     <br><br>
+    <form method="get" action="meals">
+        <input type="hidden" name="action" value="filter">
+        <p>
+            Start date: <input type="date" name="startDate" value="${param.startDate}">
+            End date: <input type="date" name="endDate" value="${param.endDate}">
+        </p>
+        <p>
+            Start time: <input type="time" name="startTime" value="${param.startTime}">
+            End time: <input type="time" name="endTime" value="${param.endTime}">
+        </p>
+        <button type="submit" style="margin-left: 500px">Filter</button>
+    </form>
+    <br><br>
     <table border="1" cellpadding="8" cellspacing="0">
         <thead>
         <tr>
