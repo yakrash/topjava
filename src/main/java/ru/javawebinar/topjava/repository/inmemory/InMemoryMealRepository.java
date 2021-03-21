@@ -38,7 +38,7 @@ public class InMemoryMealRepository implements MealRepository {
         } else {
             synchronized (this) {
                 if (repository.get(meal.getId()).getUserId() == userId) {
-                    log.info("update meal in repo: " + meal.toString());
+                    meal.setUserId(userId);
                     return repository.computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
                 }
             }
