@@ -79,7 +79,7 @@ public class MealServlet extends HttpServlet {
                 LocalTime startTime = !startTimeParam.isEmpty() ? LocalTime.parse(startTimeParam) : null;
                 LocalDate endDate = !endDateParam.isEmpty() ? LocalDate.parse(endDateParam) : null;
                 LocalTime endTime = !endTimeParam.isEmpty() ? LocalTime.parse(endTimeParam) : null;
-                request.setAttribute("meals", mealRestController.getAllMealTo(startDate, startTime, endDate, endTime));
+                request.setAttribute("meals", mealRestController.getAllMealToWithDateTime(startDate, startTime, endDate, endTime));
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
             case "all":

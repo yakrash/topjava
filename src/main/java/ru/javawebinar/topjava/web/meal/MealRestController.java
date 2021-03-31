@@ -32,7 +32,7 @@ public class MealRestController {
     public Meal create(Meal meal) {
         log.info("create in MealRestController");
         checkNew(meal);
-        return service.create(meal, authUserId());
+        return service.create(meal, authUserId(), meal.getId());
     }
 
     public void delete(int id) {
@@ -55,20 +55,20 @@ public class MealRestController {
         return MealsUtil.getTos(getAll(), authUserCaloriesPerDay());
     }
 
-    public Collection<MealTo> getAllMealTo(LocalDate startDate, LocalTime startTime,
-                                           LocalDate endDate, LocalTime endTime) {
+    public Collection<MealTo> getAllMealToWithDateTime(LocalDate startDate, LocalTime startTime,
+                                                       LocalDate endDate, LocalTime endTime) {
         log.info("getAllMealTo(Date .. Time) in MealRestController");
 
         startDate = (startDate == null) ? LocalDate.MIN : startDate;
         startTime = (startTime == null) ? LocalTime.MIN : startTime;
         endDate = (endDate == null) ? LocalDate.MAX : endDate;
         endTime = (endTime == null) ? LocalTime.MAX : endTime;
-        return MealsUtil.getFilteredTos(service.getAll(authUserId(), startDate, endDate),
-                                        authUserCaloriesPerDay(), startTime, endTime);
+        return MealsUtil.getFilteredTos(service.getAllWithDateTime(authUserId(), startDate, endDate),
+                authUserCaloriesPerDay(), startTime, endTime);
     }
 
     public void update(Meal meal) {
         log.info("update(Meal meal) in MealRestController");
-        service.update(meal, authUserId());
+        service.update(meal, authUserId(), meal.getId() == null ? null : meal.getId());
     }
 }

@@ -24,22 +24,24 @@ public class InMemoryMealRepository implements MealRepository {
     private static final Logger log = getLogger(InMemoryMealRepository.class);
 
     {
-        MealsUtil.meals.forEach(meal -> save(meal, 1));
+        MealsUtil.meals.forEach(meal -> save(meal, 1, meal.getId()));
     }
 
     @Override
-    public Meal save(Meal meal, int userId) {
+    public Meal save(Meal meal, int userId, Integer id) {
         if (meal.isNew()) {
             int idTemp = counter.incrementAndGet();
             meal.setId(idTemp);
             meal.setUserId(userId);
             repository.put(idTemp, meal);
+            log.info("create {}", meal);
             return meal;
         } else {
             synchronized (this) {
-                if (repository.get(meal.getId()).getUserId() == userId) {
+                if (repository.get(id).getUserId() == userId) {
                     meal.setUserId(userId);
-                    return repository.computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
+                    log.info("update {}", meal);
+                    return repository.computeIfPresent(id, (ident, oldMeal) -> meal);
                 }
             }
         }
@@ -48,26 +50,33 @@ public class InMemoryMealRepository implements MealRepository {
 
     @Override
     public boolean delete(int id, int userId) {
-        Meal meal = repository.remove(id);
-        return meal != null;
+        if (repository.get(id) != null || repository.get(id).getUserId() == userId) {
+            log.info("delete {}", id);
+            Meal meal = repository.remove(id);
+            return meal != null;
+        }
+        return false;
     }
 
     @Override
     public Meal get(int id, int userId) {
         if (repository.get(id).getUserId() == userId) {
+            log.info("get id: {}", id);
             return repository.get(id);
         } else return null;
     }
 
     @Override
     public Collection<Meal> getAll(int userId) {
+        log.info("getAll");
         return repository.values().stream()
                 .filter(meal -> meal.getUserId() == userId)
                 .sorted(Comparator.comparing(Meal::getDateTime).reversed())
                 .collect(Collectors.toList());
     }
 
-    public Collection<Meal> getAll(int userId, LocalDate startDate, LocalDate endDate) {
+    public Collection<Meal> getAllWithDateTime(int userId, LocalDate startDate, LocalDate endDate) {
+        log.info("getAll");
         return repository.values().stream()
                 .filter(meal -> meal.getUserId() == userId &&
                         DateTimeUtil.isBetweenHalfOpen(meal.getDate(), startDate, endDate))
