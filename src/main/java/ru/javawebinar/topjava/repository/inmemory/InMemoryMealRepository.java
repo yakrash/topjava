@@ -8,9 +8,7 @@ import ru.javawebinar.topjava.util.DateTimeUtil;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
@@ -20,7 +18,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 @Repository
 public class InMemoryMealRepository implements MealRepository {
-    private final Map<Integer, Meal> repository = new ConcurrentHashMap<>();
+    private final Map<Integer, Map<Integer, Meal>> repository = new ConcurrentHashMap<>();
     private final AtomicInteger counter = new AtomicInteger(0);
     private static final Logger log = getLogger(InMemoryMealRepository.class);
 
@@ -31,19 +29,24 @@ public class InMemoryMealRepository implements MealRepository {
     @Override
     public Meal save(Meal meal, int userId, Integer id) {
         if (meal.isNew()) {
+            log.info("create {}", meal);
             int idTemp = counter.incrementAndGet();
             meal.setId(idTemp);
             meal.setUserId(userId);
-            repository.put(idTemp, meal);
-            log.info("create {}", meal);
+            Map<Integer, Meal> mealMap = repository.get(userId) == null ? new HashMap<>() : repository.get(userId);
+            mealMap.put(idTemp, meal);
+            repository.put(userId, mealMap);
             return meal;
         } else {
             synchronized (this) {
-                Meal mealInRep = repository.get(id);
-                if (mealInRep != null && mealInRep.getUserId() == userId) {
-                    meal.setUserId(userId);
-                    log.info("update {}", meal);
-                    return repository.computeIfPresent(id, (ident, oldMeal) -> meal);
+                log.info("update {}", meal);
+                Meal mealInRep = repository.get(userId).get(id);
+                if (mealInRep != null) {
+                    repository.computeIfPresent(userId, (key, mealMap) -> {
+                        mealMap.put(id, meal);
+                        return mealMap;
+                    });
+                    return meal;
                 }
             }
         }
@@ -52,10 +55,10 @@ public class InMemoryMealRepository implements MealRepository {
 
     @Override
     public synchronized boolean delete(int id, int userId) {
-        Meal mealToDel = repository.get(id);
-        if (mealToDel != null && mealToDel.getUserId() == userId) {
+        Meal mealToDel = repository.get(userId).get(id);
+        if (mealToDel != null) {
             log.info("delete {}", id);
-            Meal meal = repository.remove(id);
+            Meal meal = repository.get(userId).remove(id);
             return meal != null;
         }
         return false;
@@ -63,8 +66,8 @@ public class InMemoryMealRepository implements MealRepository {
 
     @Override
     public synchronized Meal get(int id, int userId) {
-        Meal meal = repository.get(id);
-        if (meal != null && meal.getUserId() == userId) {
+        Meal meal = repository.get(userId).get(id);
+        if (meal != null) {
             log.info("get id: {}", id);
             return meal;
         } else return null;
@@ -82,8 +85,10 @@ public class InMemoryMealRepository implements MealRepository {
     }
 
     private Collection<Meal> filteredByPredicate(int userId, Predicate<Meal> filter) {
-        return repository.values().stream()
-                .filter(meal -> meal.getUserId() == userId)
+        if (repository.get(userId) == null) {
+            return Collections.emptyList();
+        }
+        return repository.get(userId).values().stream()
                 .filter(filter)
                 .sorted(Comparator.comparing(Meal::getDateTime).reversed())
                 .collect(Collectors.toList());
