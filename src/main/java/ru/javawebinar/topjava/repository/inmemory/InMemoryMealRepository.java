@@ -39,7 +39,8 @@ public class InMemoryMealRepository implements MealRepository {
             return meal;
         } else {
             synchronized (this) {
-                if (repository.get(id).getUserId() == userId) {
+                Meal mealInRep = repository.get(id);
+                if (mealInRep != null && mealInRep.getUserId() == userId) {
                     meal.setUserId(userId);
                     log.info("update {}", meal);
                     return repository.computeIfPresent(id, (ident, oldMeal) -> meal);
@@ -50,7 +51,7 @@ public class InMemoryMealRepository implements MealRepository {
     }
 
     @Override
-    public boolean delete(int id, int userId) {
+    public synchronized boolean delete(int id, int userId) {
         Meal mealToDel = repository.get(id);
         if (mealToDel != null && mealToDel.getUserId() == userId) {
             log.info("delete {}", id);
@@ -61,9 +62,9 @@ public class InMemoryMealRepository implements MealRepository {
     }
 
     @Override
-    public Meal get(int id, int userId) {
+    public synchronized Meal get(int id, int userId) {
         Meal meal = repository.get(id);
-        if (meal.getUserId() == userId) {
+        if (meal != null && meal.getUserId() == userId) {
             log.info("get id: {}", id);
             return meal;
         } else return null;
