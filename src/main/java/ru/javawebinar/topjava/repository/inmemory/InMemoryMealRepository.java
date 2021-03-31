@@ -50,7 +50,8 @@ public class InMemoryMealRepository implements MealRepository {
 
     @Override
     public boolean delete(int id, int userId) {
-        if (repository.get(id) != null || repository.get(id).getUserId() == userId) {
+        Meal mealToDel = repository.get(id);
+        if (mealToDel != null && mealToDel.getUserId() == userId) {
             log.info("delete {}", id);
             Meal meal = repository.remove(id);
             return meal != null;
@@ -60,11 +61,13 @@ public class InMemoryMealRepository implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        if (repository.get(id).getUserId() == userId) {
+        Meal meal = repository.get(id);
+        if (meal.getUserId() == userId) {
             log.info("get id: {}", id);
-            return repository.get(id);
+            return meal;
         } else return null;
     }
+    
 
     @Override
     public Collection<Meal> getAll(int userId) {
