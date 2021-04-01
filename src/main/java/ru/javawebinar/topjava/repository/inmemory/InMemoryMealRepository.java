@@ -23,53 +23,43 @@ public class InMemoryMealRepository implements MealRepository {
     private static final Logger log = getLogger(InMemoryMealRepository.class);
 
     {
-        MealsUtil.meals.forEach(meal -> save(meal, 1, meal.getId()));
+        MealsUtil.meals.forEach(meal -> save(meal, 1));
     }
 
     @Override
-    public Meal save(Meal meal, int userId, Integer id) {
+    public Meal save(Meal meal, int userId) {
         if (meal.isNew()) {
             log.info("create {}", meal);
             int idTemp = counter.incrementAndGet();
             meal.setId(idTemp);
-            meal.setUserId(userId);
-            Map<Integer, Meal> mealMap = repository.get(userId) == null ? new HashMap<>() : repository.get(userId);
-            mealMap.put(idTemp, meal);
-            repository.put(userId, mealMap);
+            repository.computeIfAbsent(userId, k -> new ConcurrentHashMap<>()).put(idTemp, meal);
             return meal;
         } else {
-            synchronized (this) {
-                log.info("update {}", meal);
-                Meal mealInRep = repository.get(userId).get(id);
-                if (mealInRep != null) {
-                    repository.computeIfPresent(userId, (key, mealMap) -> {
-                        mealMap.put(id, meal);
-                        return mealMap;
-                    });
-                    return meal;
-                }
+            log.info("update {}", meal);
+            Map<Integer, Meal> mealMap = repository.get(userId);
+            int id = meal.getId();
+            if (mealMap != null && mealMap.get(id) != null) {
+                return mealMap.put(id, meal);
             }
+            return null;
         }
-        return null;
     }
 
     @Override
-    public synchronized boolean delete(int id, int userId) {
-        Meal mealToDel = repository.get(userId).get(id);
-        if (mealToDel != null) {
-            log.info("delete {}", id);
-            Meal meal = repository.get(userId).remove(id);
-            return meal != null;
+    public boolean delete(int id, int userId) {
+        log.info("delete {}", id);
+        Map<Integer, Meal> mealMap = repository.get(userId);
+        if (mealMap != null && mealMap.get(id) != null) {
+            return mealMap.remove(id) != null;
         }
         return false;
     }
 
     @Override
-    public synchronized Meal get(int id, int userId) {
-        Meal meal = repository.get(userId).get(id);
-        if (meal != null) {
-            log.info("get id: {}", id);
-            return meal;
+    public Meal get(int id, int userId) {
+        Map<Integer, Meal> mealMap = repository.get(userId);
+        if (mealMap != null && mealMap.get(id) != null) {
+            return mealMap.get(id);
         } else return null;
     }
 
@@ -85,10 +75,11 @@ public class InMemoryMealRepository implements MealRepository {
     }
 
     private Collection<Meal> filteredByPredicate(int userId, Predicate<Meal> filter) {
-        if (repository.get(userId) == null) {
+        Map<Integer, Meal> mealMap = repository.get(userId);
+        if (mealMap == null) {
             return Collections.emptyList();
         }
-        return repository.get(userId).values().stream()
+        return mealMap.values().stream()
                 .filter(filter)
                 .sorted(Comparator.comparing(Meal::getDateTime).reversed())
                 .collect(Collectors.toList());

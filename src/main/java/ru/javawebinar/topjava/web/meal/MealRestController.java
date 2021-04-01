@@ -32,7 +32,7 @@ public class MealRestController {
     public Meal create(Meal meal) {
         log.info("create in MealRestController");
         checkNew(meal);
-        return service.create(meal, authUserId(), meal.getId());
+        return service.create(meal, authUserId());
     }
 
     public void delete(int id) {
@@ -67,8 +67,8 @@ public class MealRestController {
                 authUserCaloriesPerDay(), startTime, endTime);
     }
 
-    public void update(Meal meal) {
+    public void update(Meal meal, int id) {
         log.info("update(Meal meal) in MealRestController");
-        service.update(meal, authUserId(), meal.getId() == null ? null : meal.getId());
+        service.update(meal, authUserId());
     }
 }
