@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.slf4j.LoggerFactory.getLogger;
+import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
 import static ru.javawebinar.topjava.web.SecurityUtil.authUserId;
 import static ru.javawebinar.topjava.web.SecurityUtil.authUserCaloriesPerDay;
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNew;
@@ -69,6 +70,7 @@ public class MealRestController {
 
     public void update(Meal meal, int id) {
         log.info("update(Meal meal) in MealRestController");
+        assureIdConsistent(meal, id);
         service.update(meal, authUserId());
     }
 }

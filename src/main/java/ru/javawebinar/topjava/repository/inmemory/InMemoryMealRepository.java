@@ -38,8 +38,8 @@ public class InMemoryMealRepository implements MealRepository {
             log.info("update {}", meal);
             Map<Integer, Meal> mealMap = repository.get(userId);
             int id = meal.getId();
-            if (mealMap != null && mealMap.get(id) != null) {
-                return mealMap.put(id, meal);
+            if (mealMap != null) {
+                return mealMap.computeIfPresent(id, (key, oldMeal) -> meal);
             }
             return null;
         }
