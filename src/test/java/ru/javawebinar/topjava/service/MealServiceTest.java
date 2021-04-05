@@ -62,7 +62,8 @@ public class MealServiceTest {
         assertMatch(service.getBetweenInclusive(LDT_1.toLocalDate(), LDT_2.toLocalDate(), ADMIN_ID), MEAL_2, MEAL_1);
         assertMatch(service.getBetweenInclusive(null, LDT_1.toLocalDate(), ADMIN_ID), MEAL_1);
         assertMatch(service.getBetweenInclusive(LDT_2.toLocalDate(), null, ADMIN_ID), MEAL_2);
-        assertMatch(service.getBetweenInclusive(null, null, USER_ID), MEAL_3);
+        assertMatch(service.getBetweenInclusive(null, null, USER_ID), mealsUser);
+        assertMatch(service.getBetweenInclusive(LD_SAME, LD_SAME, USER_ID), mealsUserSameDate);
     }
 
     @Test
@@ -70,7 +71,7 @@ public class MealServiceTest {
         List<Meal> mealList = service.getAll(ADMIN_ID);
         assertMatch(mealList, MEAL_2, MEAL_1);
         List<Meal> mealList2 = service.getAll(USER_ID);
-        assertMatch(mealList2, MEAL_3);
+        assertMatch(mealList2, mealsUser);
     }
 
     @Test
