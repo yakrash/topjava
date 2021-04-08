@@ -1,7 +1,12 @@
 package ru.javawebinar.topjava.service;
 
+import org.junit.AfterClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
@@ -13,8 +18,11 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertThrows;
+import static org.slf4j.LoggerFactory.getLogger;
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
 import static ru.javawebinar.topjava.UserTestData.USER_ID;
@@ -26,9 +34,34 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
+    private static final Map<String, Long> mapTimeTests = new HashMap<>();
+    private static final Logger log = getLogger(MealServiceTest.class);
 
     @Autowired
     private MealService service;
+
+    @Rule
+    public TestWatcher watcher = new TestWatcher() {
+        @Override
+        protected void starting(Description description) {
+            mapTimeTests.put(description.getMethodName(), System.currentTimeMillis());
+        }
+
+        @Override
+        protected void finished(Description description) {
+            String className = description.getMethodName();
+            mapTimeTests.computeIfPresent(className, (key, oldValue) -> System.currentTimeMillis() - oldValue);
+            log.debug(className + " time: " + mapTimeTests.get(className) + "ms");
+        }
+    };
+
+    @AfterClass
+    public static void showStat() {
+        log.debug("\n---------------------------------Time statistics---------------------------------");
+        for (Map.Entry<String, Long> entry : mapTimeTests.entrySet()) {
+            log.debug("Method " + entry.getKey() + " finishBy: " + entry.getValue() + "ms");
+        }
+    }
 
     @Test
     public void delete() {
