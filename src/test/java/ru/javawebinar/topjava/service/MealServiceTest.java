@@ -3,7 +3,7 @@ package ru.javawebinar.topjava.service;
 import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
+import org.junit.rules.Stopwatch;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -18,8 +18,9 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertThrows;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -34,33 +35,31 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
-    private static final Map<String, Long> mapTimeTests = new HashMap<>();
+    private static final List<String> listTimeTests = new ArrayList<>();
     private static final Logger log = getLogger(MealServiceTest.class);
 
     @Autowired
     private MealService service;
 
     @Rule
-    public TestWatcher watcher = new TestWatcher() {
-        @Override
-        protected void starting(Description description) {
-            mapTimeTests.put(description.getMethodName(), System.currentTimeMillis());
-        }
+    public Stopwatch stopwatch = new Stopwatch() {
 
         @Override
-        protected void finished(Description description) {
-            String className = description.getMethodName();
-            mapTimeTests.computeIfPresent(className, (key, oldValue) -> System.currentTimeMillis() - oldValue);
-            log.debug(className + " time: " + mapTimeTests.get(className) + "ms");
+        protected void finished(long nanos, Description description) {
+            String sb = new StringBuilder()
+                    .append("\nMethod ").append(description.getMethodName())
+                    .append(" finishBy: ").append(TimeUnit.MILLISECONDS.convert(nanos, TimeUnit.NANOSECONDS))
+                    .append("ms")
+                    .toString();
+            listTimeTests.add(sb);
+            log.debug(sb);
         }
     };
 
     @AfterClass
     public static void showStat() {
         log.debug("\n---------------------------------Time statistics---------------------------------");
-        for (Map.Entry<String, Long> entry : mapTimeTests.entrySet()) {
-            log.debug("Method " + entry.getKey() + " finishBy: " + entry.getValue() + "ms");
-        }
+        log.debug(listTimeTests.toString());
     }
 
     @Test
