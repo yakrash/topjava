@@ -18,8 +18,8 @@ public interface UserRepository {
     User getByEmail(String email);
 
     List<User> getAll();
-
-    default User findUserWithMeals(int id) {
-        throw new UnsupportedOperationException();
-    }
+//
+//    default User findUserWithMeals(int id) {
+//        throw new UnsupportedOperationException();
+//    }
 }
