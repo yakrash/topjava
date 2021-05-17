@@ -90,6 +90,11 @@ public abstract class AbstractMealServiceTest extends AbstractServiceTest {
     }
 
     @Test
+    public void getAllManyRoles() {
+        MEAL_MATCHER.assertMatch(service.getAll(ADMIN_ID), mealsAdmin);
+    }
+
+    @Test
     public void getBetweenInclusive() {
         MEAL_MATCHER.assertMatch(service.getBetweenInclusive(
                 LocalDate.of(2020, Month.JANUARY, 30),

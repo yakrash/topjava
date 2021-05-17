@@ -226,6 +226,11 @@
             <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>11.0.2</version>
+        </dependency>
     </dependencies>
 
     <profiles>

@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
+import javafx.util.Pair;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -57,7 +58,9 @@ public class JdbcUserRepository implements UserRepository {
             Number newKey = insertUser.executeAndReturnKey(parameterSource);
             user.setId(newKey.intValue());
             updateRoles(user);
-        } else if (namedParameterJdbcTemplate.update("""
+        }
+
+        if (namedParameterJdbcTemplate.update("""
                    UPDATE users SET name=:name, email=:email, password=:password, 
                    registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id
                 """, parameterSource) == 0) {
@@ -78,50 +81,33 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public User get(int id) {
         List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE id=?", ROW_MAPPER, id);
-        return setRolesFromDB(DataAccessUtils.singleResult(users));
+        return setRolesFromDB(users);
     }
 
     @Override
     public User getByEmail(String email) {
         List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE email=?", ROW_MAPPER, email);
-        return setRolesFromDB(DataAccessUtils.singleResult(users));
+        return setRolesFromDB(users);
     }
 
     @Override
     public List<User> getAll() {
         List<User> users = jdbcTemplate.query("SELECT * FROM users ORDER BY name, email", ROW_MAPPER);
 
-        class UserRole {
-            private int userId;
-            private Role role;
-
-            public UserRole(int userId, Role role) {
-                this.userId = userId;
-                this.role = role;
-            }
-
-            public int getUserId() {
-                return userId;
-            }
-
-            public Role getRole() {
-                return role;
-            }
-        }
-
-        Map<Integer, List<UserRole>> roles = jdbcTemplate.query("SELECT * FROM user_roles",
-                (rs, num) -> new UserRole(rs.getInt("user_id"), Role.valueOf(rs.getString("role"))))
+        Map<Integer, List<Pair<Integer, Role>>> roles = jdbcTemplate.query("SELECT * FROM user_roles",
+                (rs, num) -> new Pair<>(rs.getInt("user_id"), Role.valueOf(rs.getString("role"))))
                 .stream()
-                .collect(Collectors.groupingBy(UserRole::getUserId));
+                .collect(Collectors.groupingBy(Pair::getKey));
 
         users.forEach(u -> u.setRoles(roles.get(u.getId())
                 .stream()
-                .map(UserRole::getRole)
+                .map(Pair::getValue)
                 .collect(Collectors.toList())));
         return users;
     }
 
-    private User setRolesFromDB(User user) {
+    private User setRolesFromDB(List<User> users) {
+        User user = DataAccessUtils.singleResult(users);
         if (user == null) {
             return null;
         }
