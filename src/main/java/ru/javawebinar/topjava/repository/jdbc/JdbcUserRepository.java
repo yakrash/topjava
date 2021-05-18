@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import ru.javawebinar.topjava.model.AbstractBaseEntity;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
@@ -17,10 +18,8 @@ import javafx.util.Pair;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static ru.javawebinar.topjava.util.ValidationUtil.validateForJDBC;
@@ -92,18 +91,35 @@ public class JdbcUserRepository implements UserRepository {
 
     @Override
     public List<User> getAll() {
-        List<User> users = jdbcTemplate.query("SELECT * FROM users ORDER BY name, email", ROW_MAPPER);
+//        List<User> users = jdbcTemplate.query("SELECT * FROM users ORDER BY name, email", ROW_MAPPER);
+//
+//        Map<Integer, List<Pair<Integer, Role>>> roles = jdbcTemplate.query("SELECT * FROM user_roles",
+//                (rs, num) -> new Pair<>(rs.getInt("user_id"), Role.valueOf(rs.getString("role"))))
+//                .stream()
+//                .collect(Collectors.groupingBy(Pair::getKey));
+//
+//        users.forEach(u -> u.setRoles(roles.get(u.getId())
+//                .stream()
+//                .map(Pair::getValue)
+//                .collect(Collectors.toList())));
+//        return users;
 
-        Map<Integer, List<Pair<Integer, Role>>> roles = jdbcTemplate.query("SELECT * FROM user_roles",
-                (rs, num) -> new Pair<>(rs.getInt("user_id"), Role.valueOf(rs.getString("role"))))
-                .stream()
-                .collect(Collectors.groupingBy(Pair::getKey));
+        Map<Integer, User> users = jdbcTemplate.query("SELECT * FROM users ORDER BY name, email", ROW_MAPPER).stream()
+                .collect(Collectors.toMap(AbstractBaseEntity::getId, Function.identity()));
 
-        users.forEach(u -> u.setRoles(roles.get(u.getId())
-                .stream()
-                .map(Pair::getValue)
-                .collect(Collectors.toList())));
-        return users;
+        jdbcTemplate.query("SELECT * FROM user_roles",
+                (rs, num) -> {
+                    Role role = Role.valueOf(rs.getString("role"));
+                    User user = users.get(rs.getInt("user_id"));
+                    Set<Role> roles = user.getRoles();
+                    if (roles == null) {
+                        user.setRoles(EnumSet.of(role));
+                    } else {
+                        roles.add(role);
+                    }
+                    return user;
+                });
+        return new ArrayList<>(users.values());
     }
 
     private User setRolesFromDB(List<User> users) {
