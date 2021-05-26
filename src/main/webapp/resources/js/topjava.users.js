@@ -51,3 +51,17 @@ function updateTable() {
         ctx.datatableApi.clear().rows.add(data).draw();
     });
 }
+
+function changeStatus(id) {
+    // const id = $(this).closest('tr').attr("id");
+    let checkbox = document.getElementById("status" + id);
+    let status = checkbox.checked;
+    $.ajax({
+        type: "POST",
+        url: ctx.ajaxUrl + "change-status/" + id,
+        data: {status: status}
+    }).done(function () {
+        updateTable();
+        successNoty("Changed");
+    });
+}
