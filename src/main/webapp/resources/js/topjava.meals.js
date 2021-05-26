@@ -32,9 +32,30 @@ $(function () {
             "order": [
                 [
                     0,
-                    "asc"
+                    "dsc"
                 ]
             ]
         })
     );
 });
+
+function filter() {
+    const filter = $("#filter");
+    $.ajax({
+        type: "GET",
+        url: ctx.ajaxUrl + "filter",
+        data: filter.serialize()
+    }).done(function (data) {
+        ctx.datatableApi.clear().rows.add(data).draw();
+    });
+}
+
+function updateTable() {
+    filter();
+}
+
+function clearFilter() {
+    $.get(ctx.ajaxUrl, function (data) {
+        ctx.datatableApi.clear().rows.add(data).draw();
+    });
+}
