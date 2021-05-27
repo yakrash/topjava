@@ -46,6 +46,12 @@ function save() {
     });
 }
 
+function showTable() {
+    $.get(ctx.ajaxUrl, function (data) {
+        ctx.datatableApi.clear().rows.add(data).draw();
+    });
+}
+
 let failedNote;
 
 function closeNoty() {

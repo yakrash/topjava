@@ -47,13 +47,10 @@ $(function () {
 });
 
 function updateTable() {
-    $.get(ctx.ajaxUrl, function (data) {
-        ctx.datatableApi.clear().rows.add(data).draw();
-    });
+    showTable();
 }
 
 function changeStatus(id) {
-    // const id = $(this).closest('tr').attr("id");
     let checkbox = document.getElementById("status" + id);
     let status = checkbox.checked;
     $.ajax({
@@ -61,7 +58,8 @@ function changeStatus(id) {
         url: ctx.ajaxUrl + "change-status/" + id,
         data: {status: status}
     }).done(function () {
-        updateTable();
-        successNoty("Changed");
+        checkbox.closest('tr').setAttribute("data-userStatus", status);
+        // successNoty("User " + checkbox.closest('tr').getAttribute("data-userStatus"));
+        successNoty("User " + (status ? "enabled" : "disabled"))
     });
 }

@@ -27,18 +27,6 @@ public class JspMealController extends AbstractMealController {
         return "redirect:/meals";
     }
 
-    @GetMapping("/update")
-    public String update(HttpServletRequest request, Model model) {
-        model.addAttribute("meal", super.get(getId(request)));
-        return "mealForm";
-    }
-
-    @GetMapping("/create")
-    public String create(Model model) {
-        model.addAttribute("meal", new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), "", 1000));
-        return "mealForm";
-    }
-
     @PostMapping
     public String updateOrCreate(HttpServletRequest request) {
         Meal meal = new Meal(LocalDateTime.parse(request.getParameter("dateTime")),
