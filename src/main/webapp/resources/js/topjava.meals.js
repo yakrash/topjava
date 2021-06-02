@@ -65,3 +65,29 @@ $(function () {
         })
     );
 });
+
+$('#dateTime').datetimepicker({
+    format: 'Y-m-d H:i'
+});
+
+$('#startDate').datetimepicker({
+    format: 'Y-m-d',
+    timepicker: false
+});
+
+$('#endDate').datetimepicker({
+    format: 'Y-m-d',
+    timepicker: false
+});
+
+$('#startTime').datetimepicker({
+    format: 'H:i',
+    datepicker: false
+});
+
+$('#endTime').datetimepicker({
+    format: 'H:i',
+    datepicker: false
+});
+
+$.datetimepicker.setLocale(navigator.language.substring(0, 2));
