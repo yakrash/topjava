@@ -4,13 +4,12 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import ru.javawebinar.topjava.AuthorizedUser;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 import ru.javawebinar.topjava.to.UserTo;
+import ru.javawebinar.topjava.util.UserUtil;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.LanguageUtil;
-import ru.javawebinar.topjava.web.SecurityUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,9 +31,10 @@ public class UserValidator implements Validator {
         });
 
         put(UserTo.class, (t, r) -> {
-            AuthorizedUser authorizedUser = SecurityUtil.safeGet();
-            User persistentUser = r.getByEmail(((UserTo) t).getEmail());
-            return persistentUser != null && (authorizedUser == null || !persistentUser.getId().equals(authorizedUser.getId()));
+            UserTo userTo = (UserTo) t;
+            User persistentUser = r.getByEmail(userTo.getEmail());
+            UserTo persistentUserTo = persistentUser != null ? UserUtil.asTo(persistentUser) : null;
+            return persistentUserTo != null && (userTo.isNew() || !persistentUserTo.getId().equals(userTo.getId()));
         });
     }};
 

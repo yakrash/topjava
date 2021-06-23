@@ -36,3 +36,9 @@
 
 #### validate with Error
 `curl -s -X POST -d '{}' -H 'Content-Type: application/json' http://localhost:8080/topjava/rest/admin/users --user admin@gmail.com:admin`
+
+#### POST user by admin
+curl -s -i -X POST -d '{"name":"New User","email":"test@mail.ru","password":"test-password"}' -H 'Content-Type:application/json;charset=UTF-8' http://localhost:8080/topjava/rest/admin/users --user admin@gmail.com:admin
+
+#### validate with Error
+curl -s -i -X POST -d '{"name":"New User","email":"admin@gmail.com","password":"test-password"}' -H 'Content-Type:application/json;charset=UTF-8' http://localhost:8080/topjava/rest/admin/users --user admin@gmail.com:admin
